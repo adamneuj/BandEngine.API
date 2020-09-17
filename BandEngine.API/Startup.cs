@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver;
 
 namespace BandEngine.API
 {
@@ -27,11 +29,9 @@ namespace BandEngine.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<BandEngineDatabaseSettings>(
-                Configuration.GetSection(nameof(BandEngineDatabaseSettings)));
-
-            services.AddSingleton<IBandEngineDatabaseSettings>(sp =>
-                sp.GetRequiredService<IOptions<BandEngineDatabaseSettings>>().Value);
+            ConventionRegistry.Register("Camel Case", new ConventionPack { new CamelCaseElementNameConvention() }, _ => true);
+            services.AddSingleton<IMongoClient>(s => new MongoClient(Configuration.GetConnectionString("MongoDb")));
+            services.AddScoped(s => new BandEngineDbContext(s.GetRequiredService<IMongoClient>(), Configuration["DbName"]));
 
             services.AddControllers();
         }
