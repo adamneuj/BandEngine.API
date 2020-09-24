@@ -7,6 +7,8 @@ using BandEngine.API.Authentication;
 using BandEngine.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +35,13 @@ namespace BandEngine.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // TODO: Update Cors when deploying
+            services.AddCors(options => options.AddDefaultPolicy(builder => { 
+                builder.AllowAnyOrigin();
+                builder.AllowAnyHeader();
+                builder.AllowAnyMethod();
+            } ));
+
             services.AddControllers();
 
             // For Entity Framework  
@@ -74,6 +83,8 @@ namespace BandEngine.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors();
 
             app.UseRouting();
 

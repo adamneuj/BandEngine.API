@@ -13,6 +13,7 @@ namespace BandEngine.API
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("Running on localhost:5000");
             CreateHostBuilder(args).Build().Run();
         }
 
