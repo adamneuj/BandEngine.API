@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BandEngine.API.Authentication;
+using BandEngine.API.Data;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -36,6 +37,7 @@ namespace BandEngine.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await userManager.FindByNameAsync(model.Username);
+            var userId = await userManager.GetUserIdAsync(user);
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await userManager.GetRolesAsync(user);
@@ -64,6 +66,7 @@ namespace BandEngine.API.Controllers
                 return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
+                    userId = userId,
                     expiration = token.ValidTo
                 });
             }
@@ -76,7 +79,7 @@ namespace BandEngine.API.Controllers
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists, please choose a new username." });
 
             ApplicationUser user = new ApplicationUser()
             {
